@@ -1083,8 +1083,39 @@ void handleRoot() {
   server->send_P(200, "text/html", indexpage);
 }
 
+void handleData() {
+  // use HTTP/1.1 Chunked response to avoid building a huge temporary string
+  if (!server->chunkedResponseModeStart(200, F("text/csv"))) {
+    server->send(505, F("text/html"), F("HTTP1.1 required"));
+    return;
+  }
+  const int MAXLEN = 32;
+  const int CHUNKS = 16;
+  char temp[MAXLEN * CHUNKS];
+  long time_since_last = (millis() - sensorPreviousMillis)/1000;
+  server->sendContent(F("time,temperature,humidity\n"));
+  std::size_t i = N_SAMPLES-temperature_rb.len();
+  std::size_t c = 0;
+
+  while( i < N_SAMPLES){
+    long sample_time = 0 - (N_SAMPLES - i - 1) * (sensorInterval/1000) - time_since_last;
+    c += snprintf_P(temp+c, MAXLEN,
+    PSTR("%d,%.1f,%.1f\n"),
+    sample_time, temperature_rb.get(i), humidity_rb.get(i)
+    );
+    i++;
+    if(c >= MAXLEN*(CHUNKS-1) || i == N_SAMPLES)
+    {
+      server->sendContent(temp, c);
+      c = 0;
+    }
+  }
+}
+
+
 void bindServerGraph(){
   server->on("/", handleRoot);
+  server->on("/data.csv", handleData);
 }
 
 
