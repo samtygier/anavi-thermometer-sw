@@ -297,6 +297,12 @@ unsigned long mqttConnectionPreviousMillis = millis();
 const long mqttConnectionInterval = 60000;
 
 #include "pages.h"
+#include "ring.h"
+
+const size_t N_SAMPLES = 360;
+ringbuffer<float, N_SAMPLES> temperature_rb;
+ringbuffer<float, N_SAMPLES> humidity_rb;
+
 
 // Set temperature coefficient for calibration depending on an empirical research with
 // comparison to DS18B20 and other temperature sensors. You may need to adjust it for the
@@ -2347,6 +2353,9 @@ void loop()
         {
             mqtt_status(MQTT_DHT22)->offline();
         }
+
+        temperature_rb.put(dhtTemperature);
+        humidity_rb.put(dhtHumidity);
 
         setDefaultSensorLines();
 
