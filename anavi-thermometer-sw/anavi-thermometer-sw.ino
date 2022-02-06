@@ -1069,6 +1069,17 @@ void initOneWireSensors()
 #endif
 }
 
+std::unique_ptr<ESP8266WebServer> server;
+
+void handleRoot() {
+  server->send(200, "text/html", "hello");
+}
+
+void bindServerGraph(){
+  server->on("/", handleRoot);
+}
+
+
 void setup()
 {
     uptime.d = 0;
@@ -1283,6 +1294,11 @@ void setup()
         nice_restart();
     }
     WiFi.mode(WIFI_STA);
+
+    //reset into webserver mode
+    server.reset(new ESP8266WebServer(WiFi.localIP(), 80));
+    bindServerGraph();
+    server->begin();
 
     //if you get here you have connected to the WiFi
     Serial.println("connected...yeey :)");
@@ -2415,6 +2431,7 @@ void loop()
         need_redraw = false;
     }
 
+    server->handleClient();
     MDNS.update();
 
     // Press and hold the button to reset to factory defaults
