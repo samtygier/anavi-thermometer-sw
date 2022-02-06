@@ -2349,7 +2349,7 @@ void loop()
     {
         publish_uptime();
 
-        sensorPreviousMillis = currentMillis;
+        sensorPreviousMillis += sensorInterval;
         handleSensors();
 
         // Read temperature and humidity from DHT22/AM2302
