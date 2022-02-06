@@ -296,6 +296,8 @@ unsigned long buttonPreviousMillis = 0;
 unsigned long mqttConnectionPreviousMillis = millis();
 const long mqttConnectionInterval = 60000;
 
+#include "pages.h"
+
 // Set temperature coefficient for calibration depending on an empirical research with
 // comparison to DS18B20 and other temperature sensors. You may need to adjust it for the
 // specfic DHT22 unit on your board
@@ -1072,7 +1074,7 @@ void initOneWireSensors()
 std::unique_ptr<ESP8266WebServer> server;
 
 void handleRoot() {
-  server->send(200, "text/html", "hello");
+  server->send_P(200, "text/html", indexpage);
 }
 
 void bindServerGraph(){
