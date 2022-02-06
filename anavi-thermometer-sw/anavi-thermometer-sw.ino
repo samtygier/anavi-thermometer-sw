@@ -228,6 +228,7 @@
 
 #include <ESP8266WiFi.h>          //https://github.com/esp8266/Arduino
 #include <ESP8266httpUpdate.h>
+#include <ESP8266mDNS.h>
 
 //needed for library
 #include <DNSServer.h>
@@ -1409,6 +1410,14 @@ void setup()
     Serial.println("-----");
     Serial.println("");
 
+    String mdsnID = String("anavi-") + String(apId);
+    if (MDNS.begin(mdsnID))
+    {
+      Serial.print("MDNS responder started: ");
+      Serial.print(mdsnID);
+      Serial.println(".local");
+    }
+
     setupADPS9960();
 }
 
@@ -2405,6 +2414,8 @@ void loop()
                     mqtt_line3[0] ? mqtt_line3 : sensor_line3.c_str());
         need_redraw = false;
     }
+
+    MDNS.update();
 
     // Press and hold the button to reset to factory defaults
     factoryReset();
